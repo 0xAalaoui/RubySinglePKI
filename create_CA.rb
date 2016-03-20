@@ -1,6 +1,6 @@
 require 'openssl'
 
-root_key = OpenSSL::PKey::RSA.new 2048 
+root_key = OpenSSL::PKey::RSA.new 1024 
 root_ca = OpenSSL::X509::Certificate.new
 root_ca.version = 2 
 root_ca.serial = 1

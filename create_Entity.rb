@@ -4,7 +4,7 @@ path_ca = ARGV[0]
 root_key = OpenSSL::PKey::RSA.new(File.read(path_ca + '.key'))
 root_ca = OpenSSL::X509::Certificate.new(File.read(path_ca + '.crt'))
 
-key = OpenSSL::PKey::RSA.new 2048
+key = OpenSSL::PKey::RSA.new 1024
 cert = OpenSSL::X509::Certificate.new
 cert.version = 2
 cert.serial = Random.rand(100000)

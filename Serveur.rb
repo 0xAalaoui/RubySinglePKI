@@ -13,9 +13,9 @@ def encryption(msg,key)
 end
 
 socket = TCPServer.new('localhost', 2001)
-keys = OpenSSL::PKey::RSA.new(File.open("Entity/Serveur.key"))
+keys = OpenSSL::PKey::RSA.new(File.open("End_Entity/Serveur.key"))
 
-if not File.exist?('Entity/Serveur.crt')
+if not File.exist?('End_Entity/Serveur.crt')
 	
 	randomAESkey 			= $cipher.random_key	
 	root_ca 	 			= OpenSSL::X509::Certificate.new(File.open("CA/CA.crt"))
@@ -42,12 +42,12 @@ if not File.exist?('Entity/Serveur.crt')
 	
 	puts "[SERVER] Storing certificate"
 	
-	File.open 'Entity/Serveur.crt', 'w' do |io| io.write certificate.to_pem end
+	File.open 'End_Entity/Serveur.crt', 'w' do |io| io.write certificate.to_pem end
 end
 
 
 ssl_context 			= OpenSSL::SSL::SSLContext.new()
-ssl_context.cert 		= OpenSSL::X509::Certificate.new(File.open("Entity/Serveur.crt"))
+ssl_context.cert 		= OpenSSL::X509::Certificate.new(File.open("End_Entity/Serveur.crt"))
 ssl_context.key 		= keys
 ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
 ssl_context.ca_file		= 'CA/CA.crt'
