@@ -49,10 +49,10 @@ puts "[SERVER] Waiting for clients"
 loop do
 	begin
 		Thread.start(ssl_socket.accept) do |s|
-			 puts "[SERVER] Client connected"
-			 identity = s.gets
-			 s.puts "Bonjour " + identity
-			 s.close
+			identity = s.gets.chomp
+			puts "[SERVER] " + identity + " connected"
+			s.puts "Bonjour " + identity
+			s.close
 		 end
 	rescue => e
 	puts "ERREUR #{e.message}"
