@@ -40,9 +40,9 @@ end
 ssl_context 			= OpenSSL::SSL::SSLContext.new()
 ssl_context.cert 		= OpenSSL::X509::Certificate.new(File.open("End_Entity/Serveur.crt"))
 ssl_context.key 		= keys
-ssl_context.verify_mode 	= OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
+ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
 ssl_context.ca_file		= 'CA/CA.crt'
-ssl_socket 			= OpenSSL::SSL::SSLServer.new(socket, ssl_context)
+ssl_socket 				= OpenSSL::SSL::SSLServer.new(socket, ssl_context)
 
 
 puts "[SERVER] Waiting for clients"
