@@ -1,6 +1,5 @@
 #Single PKI model
 
-
 Use `create_CA.rb path/filename` to create the self-signed certificate + RSA key for the certification authority
 
 Use `create_Entity.rb path_CA/filename path_entity/filename` to create the end-entity certificate + RSA key 
