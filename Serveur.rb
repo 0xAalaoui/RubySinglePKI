@@ -5,11 +5,11 @@ require 'base64'
 $cipher = OpenSSL::Cipher.new("AES-256-ECB")
 
 def encryption(msg,key)
-		$cipher.encrypt
-		$cipher.key = key
-		crypt = $cipher.update(msg) + $cipher.final()
-		crypt_string = (Base64.encode64(crypt))
-		return crypt_string
+	$cipher.encrypt
+	$cipher.key = key
+	crypt = $cipher.update(msg) + $cipher.final()
+	crypt_string = (Base64.encode64(crypt))
+	return crypt_string
 end
 
 socket = TCPServer.new('localhost', 2001)
