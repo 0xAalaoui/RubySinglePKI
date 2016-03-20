@@ -1,6 +1,6 @@
-Use `create_CA.rb path/filename` to create auto signed certificate + key for the certification authority
+Use `create_CA.rb path/filename` to create the self-signed certificate + RSA key for the certification authority
 
-Use `create_Entity.rb path_CA/filename path_entity/filename` to Generate end-entity certificate + key 
+Use `create_Entity.rb path_CA/filename path_entity/filename` to create th end-entity certificate + RSA key 
 
 `CA.rb` is a small server used to certify the entity serveur 
 
