@@ -8,7 +8,7 @@ root_ca.subject = OpenSSL::X509::Name.parse "/O=AalMokh/C=FR/CN=AalMokh CA"
 root_ca.issuer = root_ca.subject 
 root_ca.public_key = root_key.public_key
 root_ca.not_before = Time.now
-root_ca.not_after = root_ca.not_before + 2 * 365 * 24 * 60 * 60 # 2 ans
+root_ca.not_after = root_ca.not_before + 2 * 365 * 24 * 60 * 60 
 ef = OpenSSL::X509::ExtensionFactory.new
 ef.subject_certificate = root_ca
 ef.issuer_certificate = root_ca
