@@ -16,12 +16,15 @@ socket = TCPServer.new('localhost', 2001)
 keys = OpenSSL::PKey::RSA.new(File.open("End_Entity/Serveur.key"))
 
 if not File.exist?('End_Entity/Serveur.crt')
-	randomAESkey 		= $cipher.random_key	
-	root_ca 	 	= OpenSSL::X509::Certificate.new(File.open("CA/CA.crt"))
-	PubKey_CA		= root_ca.public_key
+	root_ca 	 	        = OpenSSL::X509::Certificate.new(File.open("CA/CA.crt"))
+	PubKey_CA		        = root_ca.public_key
+	
+	randomAESkey 	        = $cipher.random_key #Random Aes key
+	
 	aeskeyEncWithPubKeyCA	= PubKey_CA.public_encrypt(randomAESkey)
 	aeskeyEncWithPubKeyCA 	= Base64.encode64(aeskeyEncWithPubKeyCA)
-	socketWithCA 		= TCPSocket.new('localhost', 3000)
+	
+	socketWithCA    		= TCPSocket.new('localhost', 3000)
 	puts "[SERVER] Waiting for certificate"
 	socketWithCA.write aeskeyEncWithPubKeyCA #AES key encrypted with PubKey CA
 	message = socketWithCA.recv(512) #Message from CA
