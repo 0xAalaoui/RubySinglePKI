@@ -3,7 +3,7 @@ require 'openssl'
 root_key = OpenSSL::PKey::RSA.new 1024 
 root_ca = OpenSSL::X509::Certificate.new
 root_ca.version = 2 
-root_ca.serial = 1
+root_ca.serial = Random.rand(100000)
 root_ca.subject = OpenSSL::X509::Name.parse "/O=AalMokh/C=FR/CN=AalMokh CA"
 root_ca.issuer = root_ca.subject 
 root_ca.public_key = root_key.public_key
