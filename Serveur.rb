@@ -1,51 +1,44 @@
 require 'thread'
-require 'socket'
-require 'openssl'
-require 'base64'
-$cipher = OpenSSL::Cipher.new("AES-256-ECB")
+require_relative 'functions'
 
-def encryption(msg,key)
-	$cipher.encrypt
-	$cipher.key = key
-	crypt = $cipher.update(msg) + $cipher.final()
-	crypt_string = (Base64.encode64(crypt))
-	return crypt_string
-end
+socketWithClients	= TCPServer.new('localhost', 2001)
 
-socket = TCPServer.new('localhost', 2001)
-keys = OpenSSL::PKey::RSA.new(File.open("End_Entity/Serveur.key"))
+serveur_key 		= OpenSSL::PKey::RSA.new(File.open("End_Entity/Serveur.key"))
+certificate_ca 		= OpenSSL::X509::Certificate.new(File.open("CA/CA.crt"))
 
 if not File.exist?('End_Entity/Serveur.crt')
-	root_ca 	 	        = OpenSSL::X509::Certificate.new(File.open("CA/CA.crt"))
-	PubKey_CA		        = root_ca.public_key
-	
-	randomAESkey 	        = $cipher.random_key #Random Aes key
-	
-	aeskeyEncWithPubKeyCA	= PubKey_CA.public_encrypt(randomAESkey)
-	aeskeyEncWithPubKeyCA 	= Base64.encode64(aeskeyEncWithPubKeyCA)
-	
 	socketWithCA    		= TCPSocket.new('localhost', 3000)
+	
+	randomAESkey 	        = $cipher.random_key 									#Random AES key
+	PubKey_CA		        = certificate_ca.public_key								#PubKey CA
+	aeskeyEncWithPubKeyCA	= PubKey_CA.public_encrypt(randomAESkey)				#Random AES key encrypted with PubKey CA
+	aeskeyEncWithPubKeyCA 	= Base64.encode64(aeskeyEncWithPubKeyCA)				#Encode64
+	
 	puts "[SERVER] Waiting for certificate"
-	socketWithCA.write aeskeyEncWithPubKeyCA #AES key encrypted with PubKey CA
-	message = socketWithCA.recv(512) #Message from CA
+	socketWithCA.write aeskeyEncWithPubKeyCA 										#Sending to CA AES key encrypted with PubKey CA
+	
+	message = socketWithCA.recv(512)											    #Message from CA
 	puts message
-	pubKey = keys.public_key.to_s
-	pubKeyEncWithAES = encryption(pubKey, randomAESkey) #PubKey encrypted with AES
+	
+	pubKey = serveur_key.public_key.to_s
+	pubKeyEncWithAES = AESencryption(pubKey, randomAESkey) 							#PubKey encrypted with AES
 	puts "[SERVER] Sending my encrypted public key"
 	socketWithCA.write pubKeyEncWithAES
-	certificate = socketWithCA.recv(2048) #Certificate from CA 				
+	
+	encrypted_certificate = socketWithCA.recv(2048) 								#Certificate encrypted with AES 	
+	certificate = AESdecryption(encrypted_certificate,randomAESkey)
 	certificate = OpenSSL::X509::Certificate.new(certificate) 
 	puts "[SERVER] Storing certificate"
-	File.open 'End_Entity/Serveur.crt', 'w' do |io| io.write certificate.to_pem end
+	File.open 'End_Entity/Serveur.crt', 'w' do |io| io.write certificate.to_pem end #storing certificate to file
 end
 
 
 ssl_context 			= OpenSSL::SSL::SSLContext.new()
 ssl_context.cert 		= OpenSSL::X509::Certificate.new(File.open("End_Entity/Serveur.crt"))
-ssl_context.key 		= keys
+ssl_context.key 		= serveur_key
 ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
 ssl_context.ca_file		= 'CA/CA.crt'
-ssl_socket 				= OpenSSL::SSL::SSLServer.new(socket, ssl_context)
+ssl_socket 				= OpenSSL::SSL::SSLServer.new(socketWithClients, ssl_context)
 
 
 puts "[SERVER] Waiting for clients"
