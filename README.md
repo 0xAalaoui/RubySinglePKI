@@ -10,4 +10,8 @@ Use `create_Entity.rb path_CA/filename path_entity/filename` to create the end-e
 
 `Client1.rb & Client2.rb` are simple ssl clients with certificate verification
 
+In this exemple every certificate is provided, you can manually delete the Serveur.crt and see how the certificate signing is done.
+
+
+
 
