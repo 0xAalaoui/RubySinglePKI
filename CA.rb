@@ -1,7 +1,7 @@
 require_relative 'functions'
 
 socket = TCPServer.new('localhost', 3000)
-
+myRSAKeypair = OpenSSL::PKey::RSA.new(File.read('CA/CA.key'))
 loop do
 	begin
 		 Thread.start(socket.accept) do |s|
@@ -11,7 +11,7 @@ loop do
 			puts "[CA] AES Key recieved"
 
 			encrypted_AESkey = Base64.decode64(encrypted_AESkey)
-			aesKey = $root_key.private_decrypt(encrypted_AESkey)
+			aesKey = myRSAKeypair.private_decrypt(encrypted_AESkey)
 
 			s.write "[CA] Send your public key"
 
@@ -21,9 +21,8 @@ loop do
 			pubKey = AESdecryption(encrypted_PUBkey,aesKey)
 			pubKey = OpenSSL::PKey::RSA.new(pubKey)
 
-			certificate 			= certify(pubKey) 				#Generate certificate for the client
+			certificate 			= certify(pubKey,myRSAKeypair) 				#Generate certificate for the client
 			encrypted_certificate 	= AESencryption(certificate.to_s,aesKey)
-
 
 			puts "[CA] Sending certificate"
 			s.write encrypted_certificate

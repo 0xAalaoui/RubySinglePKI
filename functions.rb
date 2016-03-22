@@ -2,7 +2,6 @@ require 'socket'
 require 'openssl'
 require 'base64'
 
-$root_key = OpenSSL::PKey::RSA.new(File.read('CA/CA.key'))
 $cipher = OpenSSL::Cipher.new("AES-256-ECB")
 
 def AESencryption(msg, key)
@@ -23,14 +22,14 @@ def AESdecryption(msg, key)
 end
 
 
-def certify(rsaPubKey)
+def certify(endEntityPubKey, caKey)
 	root_ca = OpenSSL::X509::Certificate.new(File.read('CA/CA.crt'))
 	cert = OpenSSL::X509::Certificate.new
 	cert.version = 2
 	cert.serial = Random.rand(100000)
 	cert.subject = OpenSSL::X509::Name.parse "/O=AalMokh Server/C=FR/CN=AalMokh CA"
 	cert.issuer = root_ca.subject
-	cert.public_key = rsaPubKey
+	cert.public_key = endEntityPubKey
 	cert.not_before = Time.now
 	cert.not_after = cert.not_before + 1 * 365 * 24 * 60 * 60 # 1 years validity
 	ef = OpenSSL::X509::ExtensionFactory.new
@@ -38,6 +37,6 @@ def certify(rsaPubKey)
 	ef.issuer_certificate = root_ca
 	cert.add_extension(ef.create_extension("keyUsage","digitalSignature", true))
 	cert.add_extension(ef.create_extension("subjectKeyIdentifier","hash",false))
-	cert.sign($root_key, OpenSSL::Digest::SHA256.new)
+	cert.sign(caKey, OpenSSL::Digest::SHA256.new)
 	return cert
 end

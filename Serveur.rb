@@ -3,7 +3,7 @@ require_relative 'functions'
 
 socketWithClients	= TCPServer.new('localhost', 2001)
 
-serveur_key 		= OpenSSL::PKey::RSA.new(File.open("End_Entity/Serveur.key"))
+myRSAKeypair 		= OpenSSL::PKey::RSA.new(File.open("End_Entity/Serveur.key"))
 certificate_ca 		= OpenSSL::X509::Certificate.new(File.open("CA/CA.crt"))
 
 if not File.exist?('End_Entity/Serveur.crt')
@@ -20,7 +20,7 @@ if not File.exist?('End_Entity/Serveur.crt')
 	message = socketWithCA.recv(512)											    #Message from CA
 	puts message
 	
-	pubKey = serveur_key.public_key.to_s
+	pubKey = myRSAKeypair.public_key.to_s
 	pubKeyEncWithAES = AESencryption(pubKey, randomAESkey) 							#PubKey encrypted with AES
 	puts "[SERVER] Sending my encrypted public key"
 	socketWithCA.write pubKeyEncWithAES
@@ -35,8 +35,8 @@ end
 
 ssl_context 			= OpenSSL::SSL::SSLContext.new()
 ssl_context.cert 		= OpenSSL::X509::Certificate.new(File.open("End_Entity/Serveur.crt"))
-ssl_context.key 		= serveur_key
-ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
+ssl_context.key 		= myRSAKeypair
+ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 ssl_context.ca_file		= 'CA/CA.crt'
 ssl_socket 				= OpenSSL::SSL::SSLServer.new(socketWithClients, ssl_context)
 
